@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "knn-spatial-boost"
+  site-url: "https://cl3t0.github.io/knn-spatial-boost"
+  description: "Boost any model to fit spatial data using KNN"
+  repo-branch: main
+  repo-url: "https://github.com/cl3t0/knn-spatial-boost"
