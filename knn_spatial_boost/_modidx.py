@@ -14,5 +14,4 @@ d = { 'settings': { 'branch': 'main',
                                         'knn_spatial_boost.core.KNNSpatialBooster.predict': ( 'core.html#knnspatialbooster.predict',
                                                                                               'knn_spatial_boost/core.py'),
                                         'knn_spatial_boost.core.KNNSpatialBooster.score': ( 'core.html#knnspatialbooster.score',
-                                                                                            'knn_spatial_boost/core.py')},
-            'knn_spatial_boost.model': {}}}
+                                                                                            'knn_spatial_boost/core.py')}}}

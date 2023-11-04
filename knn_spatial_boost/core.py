@@ -4,6 +4,14 @@
 __all__ = ['Estimator', 'Columns', 'KNNSpatialBooster']
 
 # %% ../nbs/00_core.ipynb 3
+from sklearn import neighbors
+from sklearn.ensemble import RandomForestRegressor
+import typing as t
+import numpy as np
+from scipy.spatial import cKDTree
+from dataclasses import dataclass, field
+
+# %% ../nbs/00_core.ipynb 4
 Estimator = t.Any
 Columns = t.Union[t.Literal["*"], t.List[int]]
 
