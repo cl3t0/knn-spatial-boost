@@ -8,15 +8,14 @@ packages = [{include = "knn_spatial_boost"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
-mypy = "^1.6.1"
 scikit-learn = "^1.3.2"
 numpy = "^1.26.1"
 pandas = "^2.1.2"
-fastai = "^2.7.13"
-nbdev = "^2.3.13"
-jupyterlab = "^4.0.8"
-jupyterlab-quarto = "^0.2.8"
 
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.6.1"
+nbdev = "^2.3.13"
 
 [build-system]
 requires = ["poetry-core"]
