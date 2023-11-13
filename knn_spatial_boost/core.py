@@ -4,7 +4,6 @@
 __all__ = ['Estimator', 'Columns', 'KNNSpatialBooster']
 
 # %% ../nbs/00_core.ipynb 3
-from sklearn import neighbors
 from sklearn.ensemble import RandomForestRegressor
 import typing as t
 import numpy as np
@@ -22,7 +21,8 @@ class KNNSpatialBooster:
     A KNN Spatial Booster.
 
     You can use it with any model. It uses the training dataset to improve
-    the spatial perception of the model adding more features.
+    the spatial perception of the model adding more features. Remember to
+    use warm_start=True if your model is a scikit-learn model.
 
     Read more in the `KNNSpatialBooster` docs.
 
@@ -30,10 +30,21 @@ class KNNSpatialBooster:
     ----------
 
     n_neighbors : int, default=5
-        The number of neighbors to use as feature.
+        The number of neighbors to use as feature. Also known as "k".
+    
+    temperature : float, default=.2
+        If temperature=0, exactly "k" nearest neighbors are selected. If
+        temperature is higher, other neighbors can be selected.
+    
+    n_loops : int, default=50
+        Quantity of .fit() calls. If temperature>0, will create a new
+        dataset foreach loop.
+    
+    verbose : bool, default=False
+        If set to True, will print the current loop.
 
     estimator : Estimator, default=RandomForestRegressor()
-        Any Estimator as defined by scikit-learn.
+        Any Estimator as defined by scikit-learn with warm_start=True.
 
     estimator_output_1d_array : bool, default=True
         Used to be compatible with estimators that needs 1d arrays in `.fit()`.
@@ -50,6 +61,9 @@ class KNNSpatialBooster:
         spatial features in the training process.
     """
     n_neighbors: int = field(default=5)
+    temperature: float = field(default=0.2)
+    n_loops: int = field(default=50)
+    verbose: bool = field(default=False)
     estimator: Estimator = field(default=RandomForestRegressor())
     estimator_output_1d_array: bool = field(default=True)
     spatial_features: Columns = field(default="*")
@@ -84,19 +98,41 @@ class KNNSpatialBooster:
             else self.spatial_features
         )
 
-        boosted_X = KNNSpatialBooster.knn_enrichment(
+        neighbors = KNNSpatialBooster.get_neighbors(
             self.X,
             self.Y,
             self.X,
             self.spatial_cols,
             self.n_neighbors,
             remove_first_neighbor=True,
+            remove_neighbor_spatial_cols=self.remove_neighbor_spatial_cols
+        )
+
+        boosted_X = KNNSpatialBooster.enrich_dataset(
+            neighbors,
+            self.X,
+            self.spatial_cols,
+            self.n_neighbors,
+            self.temperature,
             remove_target_spatial_cols=self.remove_target_spatial_cols,
-            remove_neighbor_spatial_cols=self.remove_neighbor_spatial_cols,
         )
-        self.estimator.fit(
-            boosted_X, Y.ravel() if self.estimator_output_1d_array else Y
-        )
+
+        for i in range(self.n_loops):
+            print(f"Running loop #{i}")
+
+            self.estimator.fit(
+                boosted_X, Y.ravel() if self.estimator_output_1d_array else Y
+            )
+            if self.temperature > 0 and i < self.n_loops - 1:
+                boosted_X = KNNSpatialBooster.enrich_dataset(
+                    neighbors,
+                    self.X,
+                    self.spatial_cols,
+                    self.n_neighbors,
+                    self.temperature,
+                    remove_target_spatial_cols=self.remove_target_spatial_cols,
+                )
+
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -115,15 +151,29 @@ class KNNSpatialBooster:
             Predicted value for given X.
         """
 
-        boosted_X = KNNSpatialBooster.knn_enrichment(
+        if len(X.shape) < 1 or len(X.shape) > 2:
+            raise Exception(f"Bad X shape: {X.shape}")
+
+        X = X if len(X.shape) == 2 else X.reshape((X.shape[0], 1))
+
+        neighbors = KNNSpatialBooster.get_neighbors(
             self.X,
             self.Y,
             X,
             self.spatial_cols,
             self.n_neighbors,
-            remove_target_spatial_cols=self.remove_target_spatial_cols,
-            remove_neighbor_spatial_cols=self.remove_neighbor_spatial_cols,
+            remove_neighbor_spatial_cols=self.remove_neighbor_spatial_cols
         )
+
+        boosted_X = KNNSpatialBooster.enrich_dataset(
+            neighbors,
+            X,
+            self.spatial_cols,
+            self.n_neighbors,
+            0,
+            remove_target_spatial_cols=self.remove_target_spatial_cols,
+        )
+
         return self.estimator.predict(boosted_X)
 
     def score(self, X: np.ndarray, Y: np.ndarray) -> float:
@@ -145,32 +195,68 @@ class KNNSpatialBooster:
             Estimator score.
         """
 
-        boosted_X = KNNSpatialBooster.knn_enrichment(
+        if len(X.shape) < 1 or len(X.shape) > 2:
+            raise Exception(f"Bad X shape: {X.shape}")
+
+        if len(Y.shape) < 1 or len(Y.shape) > 2:
+            raise Exception(f"Bad Y shape: {Y.shape}")
+
+        X = X if len(X.shape) == 2 else X.reshape((X.shape[0], 1))
+        Y = Y if len(Y.shape) == 2 else Y.reshape((Y.shape[0], 1))
+
+        neighbors = KNNSpatialBooster.get_neighbors(
             self.X,
             self.Y,
             X,
             self.spatial_cols,
             self.n_neighbors,
-            remove_target_spatial_cols=self.remove_target_spatial_cols,
-            remove_neighbor_spatial_cols=self.remove_neighbor_spatial_cols,
+            remove_neighbor_spatial_cols=self.remove_neighbor_spatial_cols
         )
-        return self.estimator.score(boosted_X, Y)
+
+        boosted_X = KNNSpatialBooster.enrich_dataset(
+            neighbors,
+            X,
+            self.spatial_cols,
+            self.n_neighbors,
+            0,
+            remove_target_spatial_cols=self.remove_target_spatial_cols,
+        )
+
+        return self.estimator.score(
+            boosted_X, Y.ravel() if self.estimator_output_1d_array else Y
+        )
+    
+    @staticmethod
+    def vectorized_choice(probablities: np.ndarray, n: int, k: int) -> np.ndarray:
+        cumulative = probablities.cumsum()
+        random_matrix = np.random.rand(n, probablities.shape[0])
+        q = cumulative.reshape(1, -1) >= random_matrix
+        indexes = (~q).argsort(axis=1)[:, range(k)]
+        return indexes
 
     @staticmethod
-    def knn_enrichment(
+    def random_first_k(n: int, k: int, temperature: float) -> np.ndarray:
+        if temperature < 0.01:
+            temperature = 0.01
+        distribution = np.array([np.exp(-i) for i in range(2*k)]) / temperature
+        adjusted_distribution = np.exp(distribution) / np.sum(np.exp(distribution))
+        matrix = KNNSpatialBooster.vectorized_choice(adjusted_distribution, n, k)
+        return np.sort(matrix, axis=1)
+
+    @staticmethod
+    def get_neighbors(
         base_X: np.ndarray,
         base_y: np.ndarray,
         target_X: np.ndarray,
         spatial_cols: t.List[int],
         n_neighbors: int,
         remove_first_neighbor: bool = False,
-        remove_target_spatial_cols: bool = False,
         remove_neighbor_spatial_cols: bool = True,
     ) -> np.ndarray:
         first_index = 1 if remove_first_neighbor else 0
         k = n_neighbors + first_index
         btree = cKDTree(base_X[:, spatial_cols])
-        distances, indexes = btree.query(target_X[:, spatial_cols], k=k)
+        distances, indexes = btree.query(target_X[:, spatial_cols], k=2*k)
 
         neighbors_cols = [
             i
@@ -181,13 +267,27 @@ class KNNSpatialBooster:
         neighbors_tuples = [
             (
                 base_X[idx.ravel(), :][:, neighbors_cols],
-                np.reciprocal(d + 1),
                 base_y[idx.ravel(), :],
+                np.reciprocal(d + 1).reshape((len(d), 1)),
             )
-            for d, idx in zip(np.hsplit(distances, k), np.hsplit(indexes, k))
+            for d, idx in zip(np.hsplit(distances, 2*k), np.hsplit(indexes, 2*k))
         ]
 
-        neighbors = [np.hstack(neighbors_tuple) for neighbors_tuple in neighbors_tuples]
+        neighbors = np.array([np.hstack(neighbors_tuple) for neighbors_tuple in neighbors_tuples][first_index:]).T
+        return neighbors
+
+
+    @staticmethod
+    def enrich_dataset(
+        neighbors: np.ndarray,
+        target_X: np.ndarray,
+        spatial_cols: t.List[int],
+        n_neighbors: int,
+        temperature: float,
+        remove_target_spatial_cols: bool = False,
+    ) -> np.ndarray:
+        neighbors_indexes = KNNSpatialBooster.random_first_k(target_X.shape[0], n_neighbors, temperature)
+        selected_neighbors = np.hstack([np.take_along_axis(feature, neighbors_indexes, axis=1) for feature in neighbors])
 
         taget_cols = [
             i
@@ -195,5 +295,4 @@ class KNNSpatialBooster:
             if not (remove_target_spatial_cols and (i in spatial_cols))
         ]
 
-        return np.hstack([target_X[:, taget_cols], *neighbors[first_index:]])
-
+        return np.hstack([target_X[:, taget_cols], selected_neighbors])
