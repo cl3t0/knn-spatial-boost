@@ -3,4 +3,6 @@ website:
     contents:
       - index.ipynb
       - 00_core.ipynb
-      - 01_brazil_real_estate_pricing.ipynb
+      - section: Brazil Real Estate Pricing
+        contents:
+          - Brazil Real Estate Pricing/study.ipynb
