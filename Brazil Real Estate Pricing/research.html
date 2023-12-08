@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>knn-spatial-boost - Brazil Real Estate Pricing Research</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="knn-spatial-boost - Brazil Real Estate Pricing Research">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://cl3t0.github.io/knn-spatial-boost/Brazil Real Estate Pricing/research_files/figure-html/cell-4-output-2.png">
+<meta property="og:site-name" content="knn-spatial-boost">
+<meta property="og:image:height" content="1158">
+<meta property="og:image:width" content="566">
+<meta name="twitter:title" content="knn-spatial-boost - Brazil Real Estate Pricing Research">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="https://cl3t0.github.io/knn-spatial-boost/Brazil Real Estate Pricing/research_files/figure-html/cell-4-output-2.png">
+<meta name="twitter:image-height" content="1158">
+<meta name="twitter:image-width" content="566">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">knn-spatial-boost</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../Brazil Real Estate Pricing/research.html">Brazil Real Estate Pricing</a></li><li class="breadcrumb-item"><a href="../Brazil Real Estate Pricing/research.html">Brazil Real Estate Pricing Research</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">KNN Spatial Boost</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Brazil Real Estate Pricing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../Brazil Real Estate Pricing/research.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Brazil Real Estate Pricing Research</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#data-exploration-data-cleaning" id="toc-data-exploration-data-cleaning" class="nav-link active" data-scroll-target="#data-exploration-data-cleaning">Data Exploration &amp; Data Cleaning</a></li>
+  <li><a href="#sanity-checks" id="toc-sanity-checks" class="nav-link" data-scroll-target="#sanity-checks">Sanity checks</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest">Random Forest</a></li>
+  <li><a href="#knn" id="toc-knn" class="nav-link" data-scroll-target="#knn">KNN</a></li>
+  <li><a href="#neural-networks" id="toc-neural-networks" class="nav-link" data-scroll-target="#neural-networks">Neural Networks</a></li>
+  <li><a href="#spatial-boosted-random-forest" id="toc-spatial-boosted-random-forest" class="nav-link" data-scroll-target="#spatial-boosted-random-forest">Spatial Boosted Random Forest</a></li>
+  <li><a href="#spatial-boosted-neural-network" id="toc-spatial-boosted-neural-network" class="nav-link" data-scroll-target="#spatial-boosted-neural-network">Spatial Boosted Neural Network</a></li>
+  <li><a href="#spatial-boosted-neural-network-bigger-architecture" id="toc-spatial-boosted-neural-network-bigger-architecture" class="nav-link" data-scroll-target="#spatial-boosted-neural-network-bigger-architecture">Spatial Boosted Neural Network (Bigger Architecture)</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#improvements-ideas" id="toc-improvements-ideas" class="nav-link" data-scroll-target="#improvements-ideas">Improvements &amp; Ideas</a>
+  <ul class="collapse">
+  <li><a href="#about-this-research" id="toc-about-this-research" class="nav-link" data-scroll-target="#about-this-research">About this research</a></li>
+  <li><a href="#about-the-method" id="toc-about-the-method" class="nav-link" data-scroll-target="#about-the-method">About the method</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/cl3t0/knn-spatial-boost/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Brazil Real Estate Pricing Research</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<p>I want to predict future prices for houses and apartments. To do this, I plan to build a model to predict price given latitude, longitude, and a set of features (like number of rooms, square footage, etc) and a date in the range of my data (2013 to 2016) and another model to build this forecast to current prices (2023) and future prices (2030, for example).</p>
+<p>In this research, I will focus on the first model. The next one will be developed in the future.</p>
+<p>To do price calculation I developed a “new” approach due to the lack of spatial features. Here I’m going to call it “KNN Spatial Boost”. I tested 5 models:</p>
+<ul>
+<li>Random Forest</li>
+<li>KNN</li>
+<li>Neural Network</li>
+<li>Spatial Boosted Random Forest</li>
+<li>Spatial Boosted Neural Network</li>
+</ul>
+<p>The “KNN Spatial Boost” is a boosting algorithm to improve other model’s performance in spatial data. It’s almost a feature engineering technique because it adds k-nearest neighbors (based on specific features) as features but in addition, randomizes those neighbors a little bit in the training routine to reduce the model dependency on the dataset and improve generalization.</p>
+<p>To read more about the algorithm, visit the <a href="https://github.com/cl3t0/knn-spatial-boost">code repository</a>.</p>
+<section id="data-exploration-data-cleaning" class="level2">
+<h2 class="anchored" data-anchor-id="data-exploration-data-cleaning">Data Exploration &amp; Data Cleaning</h2>
+<p>Here’s my <a href="https://www.kaggle.com/datasets/devvret/brazil-real-estate-listings/">initial dataset</a>. We need to check for outliers, missing fields, and see some distributions to identify data skewness.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>raw_df <span class="op">=</span> pd.read_csv(<span class="st">"properati-BR-2016-11-01-properties-sell.csv"</span>, sep<span class="op">=</span><span class="st">","</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>raw_df.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">created_on</th>
+<th data-quarto-table-cell-role="th">operation</th>
+<th data-quarto-table-cell-role="th">property_type</th>
+<th data-quarto-table-cell-role="th">place_name</th>
+<th data-quarto-table-cell-role="th">place_with_parent_names</th>
+<th data-quarto-table-cell-role="th">geonames_id</th>
+<th data-quarto-table-cell-role="th">lat-lon</th>
+<th data-quarto-table-cell-role="th">lat</th>
+<th data-quarto-table-cell-role="th">lon</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">surface_covered_in_m2</th>
+<th data-quarto-table-cell-role="th">price_usd_per_m2</th>
+<th data-quarto-table-cell-role="th">price_per_m2</th>
+<th data-quarto-table-cell-role="th">floor</th>
+<th data-quarto-table-cell-role="th">rooms</th>
+<th data-quarto-table-cell-role="th">expenses</th>
+<th data-quarto-table-cell-role="th">properati_url</th>
+<th data-quarto-table-cell-role="th">description</th>
+<th data-quarto-table-cell-role="th">title</th>
+<th data-quarto-table-cell-role="th">image_thumbnail</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2013-04-25</td>
+<td>sell</td>
+<td>apartment</td>
+<td>Mondubim</td>
+<td>|Brasil|Ceará|Fortaleza|Mondubim|</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>155900.0</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2.0</td>
+<td>NaN</td>
+<td>http://mondubim.properati.com.br/px9_vende-se_...</td>
+<td>Otimo Imovel com o melhor valor da regiao, con...</td>
+<td>Apartamento Em Fortaleza</td>
+<td>https://thumbs-cf.properati.com/8/EY670SQWML7c...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2013-04-25</td>
+<td>sell</td>
+<td>house</td>
+<td>Manhuaçu</td>
+<td>|Brasil|Minas Gerais|Manhuaçu|</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>950000.0</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>http://manhuacu.properati.com.br/pxv_vende-se_...</td>
+<td>Otimo Imovel com o melhor valor da regiao, con...</td>
+<td>Casa Em Manhuacu</td>
+<td>https://thumbs-cf.properati.com/1/1VGQees9LIbx...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2013-04-25</td>
+<td>sell</td>
+<td>house</td>
+<td>Ibatiba</td>
+<td>|Brasil|Espírito Santo|Ibatiba|</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>http://ibatiba.properati.com.br/pxw_vende-se_o...</td>
+<td>Otimo Imovel com o melhor valor da regiao, con...</td>
+<td>Sítio Em Ibatiba</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+<p>3 rows × 24 columns</p>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>raw_df.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 872672 entries, 0 to 872671
+Data columns (total 24 columns):
+ #   Column                      Non-Null Count   Dtype  
+---  ------                      --------------   -----  
+ 0   created_on                  872672 non-null  object 
+ 1   operation                   872672 non-null  object 
+ 2   property_type               872672 non-null  object 
+ 3   place_name                  872672 non-null  object 
+ 4   place_with_parent_names     872672 non-null  object 
+ 5   geonames_id                 140 non-null     float64
+ 6   lat-lon                     387227 non-null  object 
+ 7   lat                         387227 non-null  float64
+ 8   lon                         387227 non-null  float64
+ 9   price                       819401 non-null  float64
+ 10  currency                    819382 non-null  object 
+ 11  price_aprox_local_currency  819401 non-null  float64
+ 12  price_aprox_usd             819401 non-null  float64
+ 13  surface_total_in_m2         216934 non-null  float64
+ 14  surface_covered_in_m2       633240 non-null  float64
+ 15  price_usd_per_m2            589181 non-null  float64
+ 16  price_per_m2                589181 non-null  float64
+ 17  floor                       50794 non-null   float64
+ 18  rooms                       541746 non-null  float64
+ 19  expenses                    233318 non-null  float64
+ 20  properati_url               872672 non-null  object 
+ 21  description                 872672 non-null  object 
+ 22  title                       872672 non-null  object 
+ 23  image_thumbnail             834007 non-null  object 
+dtypes: float64(13), object(11)
+memory usage: 159.8+ MB</code></pre>
+</div>
+</div>
+<p>Our feature selection process will be based on non-null so we are going to select</p>
+<ul>
+<li>created_on</li>
+<li>property_type</li>
+<li>lat</li>
+<li>lon</li>
+<li>price</li>
+<li>surface_covered_in_m2</li>
+<li>rooms</li>
+</ul>
+<p>I would love to use <code>floor</code> and <code>surface_total_in_m2</code> as features but they are filled for less than 10% for the dataset. In the future, the <code>description</code> column can be used with NLP to improve the price prediction accuracy.</p>
+<p>But before selecting them we need to make some other analysis. For example, which categories do we have in <code>property_type</code> and in <code>currency</code>?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">14</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].title.set_text(<span class="st">"Property type distribution"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>raw_df[raw_df.property_type.notnull()].property_type.value_counts().sort_index().plot(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"bar"</span>, ax<span class="op">=</span>ax[<span class="dv">0</span>], xlabel<span class="op">=</span><span class="st">""</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>plt.setp(ax[<span class="dv">0</span>].get_xticklabels(), rotation<span class="op">=</span><span class="dv">30</span>, horizontalalignment<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].title.set_text(<span class="st">"Currency distribution"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>raw_df[raw_df.currency.notnull()].currency.value_counts().sort_index().plot(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"bar"</span>, ax<span class="op">=</span>ax[<span class="dv">1</span>], xlabel<span class="op">=</span><span class="st">""</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>plt.setp(ax[<span class="dv">1</span>].get_xticklabels(), rotation<span class="op">=</span><span class="dv">30</span>, horizontalalignment<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_212015/2208899610.py:16: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-4-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Unbalanced values can cause problems in model performance. Because of this we are going to drop PH, stores, and non-BRL rows. For continuous features, we need to do a similar analysis.</p>
+<p>In addition to feature selection, we will convert the <code>created_on</code> column to ordinal and convert the <code>property_type</code> column to two columns like <code>is_house</code> and <code>is_apartment</code> (one-hot encoding).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>clean_df <span class="op">=</span> raw_df[</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    raw_df.created_on.notnull()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> raw_df.lat.notnull()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> raw_df.lon.notnull()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> raw_df.price.notnull()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> raw_df.rooms.notnull()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> raw_df.surface_covered_in_m2.notnull()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (raw_df.currency <span class="op">==</span> <span class="st">"BRL"</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> ((raw_df.property_type <span class="op">==</span> <span class="st">"apartment"</span>) <span class="op">|</span> (raw_df.property_type <span class="op">==</span> <span class="st">"house"</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>][</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"lat"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">"lon"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"created_on"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"property_type"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"price"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"surface_covered_in_m2"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"rooms"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>clean_df.created_on <span class="op">=</span> clean_df.created_on.<span class="bu">map</span>(datetime.datetime.fromisoformat).<span class="bu">map</span>(</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    datetime.datetime.toordinal</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>clean_df.loc[:, <span class="st">"is_house"</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>clean_df.loc[clean_df.property_type <span class="op">==</span> <span class="st">"house"</span>, <span class="st">"is_house"</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>clean_df.loc[:, <span class="st">"is_apartment"</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>clean_df.loc[clean_df.property_type <span class="op">==</span> <span class="st">"apartment"</span>, <span class="st">"is_apartment"</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>clean_df.drop(columns<span class="op">=</span>[<span class="st">"property_type"</span>], inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>clean_df.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">lat</th>
+<th data-quarto-table-cell-role="th">lon</th>
+<th data-quarto-table-cell-role="th">created_on</th>
+<th data-quarto-table-cell-role="th">price</th>
+<th data-quarto-table-cell-role="th">surface_covered_in_m2</th>
+<th data-quarto-table-cell-role="th">rooms</th>
+<th data-quarto-table-cell-role="th">is_house</th>
+<th data-quarto-table-cell-role="th">is_apartment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">792</td>
+<td>-3.474983</td>
+<td>-38.928616</td>
+<td>735045</td>
+<td>5000000.0</td>
+<td>1000.0</td>
+<td>8.0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">794</td>
+<td>-23.547697</td>
+<td>-46.657379</td>
+<td>735115</td>
+<td>2000000.0</td>
+<td>180.0</td>
+<td>3.0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">795</td>
+<td>-23.545349</td>
+<td>-46.659519</td>
+<td>735115</td>
+<td>960000.0</td>
+<td>109.0</td>
+<td>3.0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Now the same analysis as before but now for continuous features.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> group_values(series: pd.Series, group_size: <span class="bu">float</span>) <span class="op">-&gt;</span> pd.Series:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ((series <span class="op">/</span> group_size).<span class="bu">map</span>(<span class="bu">int</span>) <span class="op">*</span> group_size).value_counts().sort_index()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">7</span>, ncols<span class="op">=</span><span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">42</span>))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Price distribution"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"price"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">0</span>].plot(group_values(clean_df[clean_df.price <span class="op">&gt;</span> <span class="dv">0</span>].price, <span class="dv">50000</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">1</span>].title.set_text(<span class="st">"log10(Price) distribution"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"log10(price)"</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>, <span class="dv">1</span>].plot(group_values(np.log10(clean_df[clean_df.price <span class="op">&gt;</span> <span class="dv">0</span>].price), <span class="fl">0.5</span>))</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Surface covered in m2 distribution"</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"m2"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">0</span>].plot(</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    group_values(</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        clean_df[</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            (clean_df.surface_covered_in_m2 <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">&amp;</span> (clean_df.surface_covered_in_m2 <span class="op">&lt;</span> <span class="dv">5000</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        ].surface_covered_in_m2,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="dv">100</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">1</span>].title.set_text(<span class="st">"log10(Surface covered in m2) distribution"</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"log(m2)"</span>)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>, <span class="dv">1</span>].plot(</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    group_values(</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        np.log10(</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>            clean_df[</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>                (clean_df.surface_covered_in_m2 <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                <span class="op">&amp;</span> (clean_df.surface_covered_in_m2 <span class="op">&lt;</span> <span class="dv">5000</span>)</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>            ].surface_covered_in_m2</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0.1</span>,</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>positive_price_and_m2 <span class="op">=</span> clean_df[</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    (clean_df.price <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (clean_df.surface_covered_in_m2 <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>filtered_price_and_m2 <span class="op">=</span> positive_price_and_m2[</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    (positive_price_and_m2.price <span class="op">/</span> positive_price_and_m2.surface_covered_in_m2 <span class="op">&gt;</span> <span class="dv">1500</span>)</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>        positive_price_and_m2.price <span class="op">/</span> positive_price_and_m2.surface_covered_in_m2</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;</span> <span class="dv">20000</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Price/surface covered in m2 distribution"</span>)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"price/m2"</span>)</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">0</span>].plot(</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    group_values(</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        positive_price_and_m2.price <span class="op">/</span> positive_price_and_m2.surface_covered_in_m2,</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>        <span class="dv">500</span>,</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">1</span>].title.set_text(<span class="st">"Price/surface covered in m2 distribution but filtered"</span>)</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"price/m2"</span>)</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>, <span class="dv">1</span>].plot(</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>    group_values(</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>        filtered_price_and_m2.price <span class="op">/</span> filtered_price_and_m2.surface_covered_in_m2,</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>        <span class="dv">500</span>,</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Rooms distribution"</span>)</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"rooms"</span>)</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">0</span>].plot(group_values(clean_df.rooms, <span class="dv">1</span>))</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">1</span>].title.set_text(<span class="st">"Rooms distribution but filtered"</span>)</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"rooms"</span>)</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">3</span>, <span class="dv">1</span>].plot(group_values(clean_df[clean_df.rooms <span class="op">&lt;</span> <span class="dv">16</span>].rooms, <span class="dv">1</span>))</span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Creation data distribution"</span>)</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"days since 01-01-0001"</span>)</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">0</span>].plot(</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>    group_values(</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>        clean_df.created_on,</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>        <span class="dv">100</span>,</span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">1</span>].title.set_text(<span class="st">"log(Creation data) distribution"</span>)</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"log(days since 01-01-0001)"</span>)</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">4</span>, <span class="dv">1</span>].plot(</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>    group_values(</span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>        np.log10(clean_df.created_on),</span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0.00001</span>,</span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Latitude distribution"</span>)</span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"latitude"</span>)</span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">0</span>].plot(group_values(clean_df.lat, <span class="dv">1</span>))</span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">1</span>].title.set_text(<span class="st">"Latitude distribution but filtered"</span>)</span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"latitude"</span>)</span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">5</span>, <span class="dv">1</span>].plot(group_values(clean_df[clean_df.lat <span class="op">&lt;</span> <span class="op">-</span><span class="dv">2</span>].lat, <span class="dv">1</span>))</span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">0</span>].title.set_text(<span class="st">"Longitude distribution"</span>)</span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"longitude"</span>)</span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">0</span>].plot(group_values(clean_df.lon, <span class="dv">1</span>))</span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">1</span>].title.set_text(<span class="st">"Longitude distribution but filtered"</span>)</span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"longitude"</span>)</span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">1</span>].set_ylabel(<span class="st">"quantity"</span>)</span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">6</span>, <span class="dv">1</span>].plot(</span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>    group_values(clean_df[(clean_df.lon <span class="op">&lt;</span> <span class="op">-</span><span class="dv">34</span>) <span class="op">&amp;</span> (clean_df.lon <span class="op">&gt;</span> <span class="op">-</span><span class="dv">55</span>)].lon, <span class="dv">1</span>)</span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_212015/2237906502.py:129: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-6-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Note that some of those features are worth applying some non-linear normalization like logarithm. The price and the surface covered in m2 are obviously skewed. Rooms, creation date, price over m2, latitude, and longitude are not so much so I’m only going to apply some linear transformation and filtering to them. Before adding new features I want to see feature correlation to check if they make sense.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>corr_df <span class="op">=</span> clean_df.copy()</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>corr_df[<span class="st">"log_price"</span>] <span class="op">=</span> np.log10(corr_df.price)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>corr_df[<span class="st">"log_m2"</span>] <span class="op">=</span> np.log10(corr_df.surface_covered_in_m2)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>corr_df[<span class="st">"price_over_m2"</span>] <span class="op">=</span> corr_df.price <span class="op">/</span> corr_df.surface_covered_in_m2</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>corr_df[<span class="st">"log_price_over_m2"</span>] <span class="op">=</span> np.log10(corr_df.price <span class="op">/</span> corr_df.surface_covered_in_m2)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>corr <span class="op">=</span> corr_df.corr().<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>sb.heatmap(corr, cmap<span class="op">=</span><span class="st">"Blues"</span>, annot<span class="op">=</span><span class="va">True</span>, annot_kws<span class="op">=</span>{<span class="st">"fontsize"</span>: <span class="dv">8</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/cleto/repos/knn-spatial-boost/.venv/lib/python3.10/site-packages/pandas/core/arraylike.py:396: RuntimeWarning: divide by zero encountered in log10
+  result = getattr(ufunc, method)(*inputs, **kwargs)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Axes: &gt;</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-7-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Since <code>price</code> and <code>surface_covered_in_m2</code> are skewed I considered applying the log to them. But note that <code>log_price</code> and <code>log_m2</code> are highly correlated (0.74). If we take a look at the <code>price_over_m2</code> row in the correlation matrix, we notice that it’s not highly correlated with anything and <code>price_over_m2</code> distribution is not skewed. Because of this, we are going to use it as the target column!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> corr_df[</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    (corr_df.lat <span class="op">&lt;</span> <span class="op">-</span><span class="dv">2</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.lon <span class="op">&lt;</span> <span class="op">-</span><span class="dv">34</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.lon <span class="op">&gt;</span> <span class="op">-</span><span class="dv">55</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.price <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.rooms <span class="op">&lt;</span> <span class="dv">16</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.price <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.surface_covered_in_m2 <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.surface_covered_in_m2 <span class="op">&lt;</span> <span class="dv">5000</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.price_over_m2 <span class="op">&gt;</span> <span class="dv">1500</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (corr_df.price_over_m2 <span class="op">&lt;</span> <span class="dv">20000</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>][[<span class="st">"lat"</span>, <span class="st">"lon"</span>, <span class="st">"created_on"</span>, <span class="st">"rooms"</span>, <span class="st">"is_house"</span>, <span class="st">"is_apartment"</span>, <span class="st">"price_over_m2"</span>]]</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>df.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">lat</th>
+<th data-quarto-table-cell-role="th">lon</th>
+<th data-quarto-table-cell-role="th">created_on</th>
+<th data-quarto-table-cell-role="th">rooms</th>
+<th data-quarto-table-cell-role="th">is_house</th>
+<th data-quarto-table-cell-role="th">is_apartment</th>
+<th data-quarto-table-cell-role="th">price_over_m2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">792</td>
+<td>-3.474983</td>
+<td>-38.928616</td>
+<td>735045</td>
+<td>8.0</td>
+<td>1</td>
+<td>0</td>
+<td>5000.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">794</td>
+<td>-23.547697</td>
+<td>-46.657379</td>
+<td>735115</td>
+<td>3.0</td>
+<td>0</td>
+<td>1</td>
+<td>11111.111111</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">795</td>
+<td>-23.545349</td>
+<td>-46.659519</td>
+<td>735115</td>
+<td>3.0</td>
+<td>0</td>
+<td>1</td>
+<td>8807.339450</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+Index: 153337 entries, 792 to 872640
+Data columns (total 7 columns):
+ #   Column         Non-Null Count   Dtype  
+---  ------         --------------   -----  
+ 0   lat            153337 non-null  float64
+ 1   lon            153337 non-null  float64
+ 2   created_on     153337 non-null  int64  
+ 3   rooms          153337 non-null  float64
+ 4   is_house       153337 non-null  int64  
+ 5   is_apartment   153337 non-null  int64  
+ 6   price_over_m2  153337 non-null  float64
+dtypes: float64(4), int64(3)
+memory usage: 9.4 MB</code></pre>
+</div>
+</div>
+<p>Here’s a geographical view of the data. For future comparison, we are going to “zoom in” Belo Horizonte (BH), which is a big city, filter to only apartments with 1 room. I used logarithm in the price to show colors in a smoother way.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bh_lats <span class="op">=</span> (<span class="op">-</span><span class="fl">19.99491</span>, <span class="op">-</span><span class="fl">19.83163</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>bh_longs <span class="op">=</span> (<span class="op">-</span><span class="fl">44.02857</span>, <span class="op">-</span><span class="fl">43.90612</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>bh_df <span class="op">=</span> df[</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    (df.lat <span class="op">&gt;</span> bh_lats[<span class="dv">0</span>])</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (df.lat <span class="op">&lt;</span> bh_lats[<span class="dv">1</span>])</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (df.lon <span class="op">&gt;</span> bh_longs[<span class="dv">0</span>])</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (df.lon <span class="op">&lt;</span> bh_longs[<span class="dv">1</span>])</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (df.is_apartment <span class="op">==</span> <span class="dv">1</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (df.rooms <span class="op">==</span> <span class="dv">1</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.scatter(</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    bh_df[<span class="st">"lon"</span>],</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    bh_df[<span class="st">"lat"</span>],</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    s<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    c<span class="op">=</span>bh_df[<span class="st">"price_over_m2"</span>],</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">"plasma_r"</span>,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>plt.colorbar()</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Belo Horizonte price distribution"</span>)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Longitude"</span>)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Latitude"</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>min_created_on <span class="op">=</span> df.created_on.<span class="bu">min</span>()</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>max_created_on <span class="op">=</span> df.created_on.<span class="bu">max</span>()</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>min_lat <span class="op">=</span> df.lat.<span class="bu">min</span>()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>max_lat <span class="op">=</span> df.lat.<span class="bu">max</span>()</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>min_lon <span class="op">=</span> df.lon.<span class="bu">min</span>()</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>max_lon <span class="op">=</span> df.lon.<span class="bu">max</span>()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>min_rooms <span class="op">=</span> df.rooms.<span class="bu">min</span>()</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>max_rooms <span class="op">=</span> df.rooms.<span class="bu">max</span>()</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>min_lon <span class="op">=</span> df.lon.<span class="bu">min</span>()</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>max_lon <span class="op">=</span> df.lon.<span class="bu">max</span>()</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>min_price_over_m2 <span class="op">=</span> df.price_over_m2.<span class="bu">min</span>()</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>max_price_over_m2 <span class="op">=</span> df.price_over_m2.<span class="bu">max</span>()</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalize_xs(x: pd.DataFrame) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    x.created_on <span class="op">=</span> (x.created_on <span class="op">-</span> min_created_on) <span class="op">/</span> (max_created_on <span class="op">-</span> min_created_on)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    x.lat <span class="op">=</span> (x.lat <span class="op">-</span> min_lat) <span class="op">/</span> (max_lat <span class="op">-</span> min_lat)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    x.lon <span class="op">=</span> (x.lon <span class="op">-</span> min_lon) <span class="op">/</span> (max_lon <span class="op">-</span> min_lon)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    x.rooms <span class="op">=</span> (x.rooms <span class="op">-</span> min_rooms) <span class="op">/</span> (max_rooms <span class="op">-</span> min_rooms)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalize_y(x: pd.DataFrame) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    x.price_over_m2 <span class="op">=</span> (x.price_over_m2 <span class="op">-</span> min_price_over_m2) <span class="op">/</span> (</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>        max_price_over_m2 <span class="op">-</span> min_price_over_m2</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> denormalize_y(y: np.ndarray) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (min_price_over_m2 <span class="op">+</span> y <span class="op">*</span> (max_price_over_m2 <span class="op">-</span> min_price_over_m2)).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prepare(x: pd.DataFrame) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    new_x <span class="op">=</span> x.copy()</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> normalize_xs(normalize_y(new_x))</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>prepared_df <span class="op">=</span> prepare(df)</span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>prepared_df.head(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">lat</th>
+<th data-quarto-table-cell-role="th">lon</th>
+<th data-quarto-table-cell-role="th">created_on</th>
+<th data-quarto-table-cell-role="th">rooms</th>
+<th data-quarto-table-cell-role="th">is_house</th>
+<th data-quarto-table-cell-role="th">is_apartment</th>
+<th data-quarto-table-cell-role="th">price_over_m2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">792</td>
+<td>0.964141</td>
+<td>0.793751</td>
+<td>0.000000</td>
+<td>0.500000</td>
+<td>1</td>
+<td>0</td>
+<td>0.189147</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">794</td>
+<td>0.242964</td>
+<td>0.407479</td>
+<td>0.057236</td>
+<td>0.142857</td>
+<td>0</td>
+<td>1</td>
+<td>0.519595</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">795</td>
+<td>0.243049</td>
+<td>0.407372</td>
+<td>0.057236</td>
+<td>0.142857</td>
+<td>0</td>
+<td>1</td>
+<td>0.395022</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Before starting training, we are going to split our dataset into a training dataset and a validation dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_dataset(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    dataset: pd.DataFrame, test_ratio: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.30</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> t.Tuple[pd.DataFrame, pd.DataFrame]:</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    test_indices <span class="op">=</span> np.random.rand(<span class="bu">len</span>(dataset)) <span class="op">&lt;</span> test_ratio</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dataset[<span class="op">~</span>test_indices], dataset[test_indices]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>train, valid <span class="op">=</span> split_dataset(prepared_df)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>X_train <span class="op">=</span> train.loc[:, train.columns <span class="op">!=</span> <span class="st">"price_over_m2"</span>].to_numpy()</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> train.price_over_m2.to_numpy()</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>X_valid <span class="op">=</span> valid.loc[:, valid.columns <span class="op">!=</span> <span class="st">"price_over_m2"</span>].to_numpy()</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>y_valid <span class="op">=</span> valid.price_over_m2.to_numpy()</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_train.shape)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y_train.shape)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(X_valid.shape)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y_valid.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(107424, 6)
+(107424,)
+(45913, 6)
+(45913,)</code></pre>
+</div>
+</div>
+</section>
+<section id="sanity-checks" class="level2">
+<h2 class="anchored" data-anchor-id="sanity-checks">Sanity checks</h2>
+<p>Even with the validation dataset, we want to make some sanity checks after the training. To do it so, we built this function which evaluates the model with specific features. It’s a <em>curried</em> function because there are some standardized checks to apply to all models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="bu">eval</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    lat: t.Union[<span class="bu">float</span>, np.ndarray],</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    lon: t.Union[<span class="bu">float</span>, np.ndarray],</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    created_on: t.Union[datetime.date, t.List[datetime.date]],</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    property_type: t.Literal[<span class="st">"apartment"</span>, <span class="st">"house"</span>],</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    rooms: t.Union[<span class="bu">int</span>, np.ndarray],</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> t.Callable[[t.Any], pd.DataFrame]:</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    lat_vec <span class="op">=</span> lat <span class="cf">if</span> <span class="bu">isinstance</span>(lat, np.ndarray) <span class="cf">else</span> np.array([lat])</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    lon_vec <span class="op">=</span> lon <span class="cf">if</span> <span class="bu">isinstance</span>(lon, np.ndarray) <span class="cf">else</span> np.array([lon])</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    created_on_vec <span class="op">=</span> (</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        np.array([c.toordinal() <span class="cf">for</span> c <span class="kw">in</span> created_on])</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(created_on, t.List)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span> np.array([created_on.toordinal()])</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    rooms_vec <span class="op">=</span> rooms <span class="cf">if</span> <span class="bu">isinstance</span>(rooms, np.ndarray) <span class="cf">else</span> np.array([rooms])</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> np.vstack(</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>            v.ravel()</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> v <span class="kw">in</span> np.meshgrid(</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>                lat_vec,</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>                lon_vec,</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>                created_on_vec,</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>                rooms_vec,</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>                indexing<span class="op">=</span><span class="st">"ij"</span>,</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    ).T</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    is_apartment <span class="op">=</span> <span class="bu">int</span>(property_type <span class="op">==</span> <span class="st">"apartment"</span>)</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    is_house <span class="op">=</span> <span class="bu">int</span>(property_type <span class="op">==</span> <span class="st">"house"</span>)</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>    x_df <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>            <span class="st">"lat"</span>: m[:, <span class="dv">0</span>],</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>            <span class="st">"lon"</span>: m[:, <span class="dv">1</span>],</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>            <span class="st">"created_on"</span>: m[:, <span class="dv">2</span>],</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>            <span class="st">"is_apartment"</span>: [is_apartment] <span class="op">*</span> <span class="bu">len</span>(m),</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>            <span class="st">"is_house"</span>: [is_house] <span class="op">*</span> <span class="bu">len</span>(m),</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>            <span class="st">"rooms"</span>: m[:, <span class="dv">3</span>],</span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> normalize_xs(x_df.copy()).to_numpy()</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> fn(model: t.Any) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> model.predict(x)</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>        x_df[<span class="st">"price_over_m2"</span>] <span class="op">=</span> denormalize_y(y.reshape(<span class="bu">len</span>(m)))</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_df</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fn</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here are all sanity checks:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lats <span class="op">=</span> np.linspace(bh_lats[<span class="dv">0</span>], bh_lats[<span class="dv">1</span>], <span class="dv">100</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>longs <span class="op">=</span> np.linspace(bh_longs[<span class="dv">0</span>], bh_longs[<span class="dv">1</span>], <span class="dv">50</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>santacruz <span class="op">=</span> (<span class="op">-</span><span class="fl">19.87755</span>, <span class="op">-</span><span class="fl">43.94184</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>sion <span class="op">=</span> (<span class="op">-</span><span class="fl">19.95408</span>, <span class="op">-</span><span class="fl">43.93163</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> datetime.date(<span class="dv">2013</span>, <span class="dv">7</span>, <span class="dv">1</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>date_list <span class="op">=</span> [start <span class="op">+</span> datetime.timedelta(days<span class="op">=</span>x) <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">365</span> <span class="op">*</span> <span class="dv">3</span>)]</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>bh_heatmap_check <span class="op">=</span> <span class="bu">eval</span>(lats, longs, datetime.date(<span class="dv">2016</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="st">"apartment"</span>, <span class="dv">1</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>santa_cruz_price_evolution <span class="op">=</span> <span class="bu">eval</span>(</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    santacruz[<span class="dv">0</span>], santacruz[<span class="dv">1</span>], date_list, <span class="st">"apartment"</span>, np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>sion_price_evolution <span class="op">=</span> <span class="bu">eval</span>(</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    sion[<span class="dv">0</span>], sion[<span class="dv">1</span>], date_list, <span class="st">"apartment"</span>, np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here’s a function to plot everything once:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sanity_checks(model: t.Any, price_limit: t.Optional[<span class="bu">float</span>] <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    bh_heatmap <span class="op">=</span> bh_heatmap_check(model)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    santa_cruz <span class="op">=</span> santa_cruz_price_evolution(model)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    sion <span class="op">=</span> sion_price_evolution(model)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> price_limit <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        bh_heatmap.loc[bh_heatmap.price <span class="op">&gt;</span> price_limit, <span class="st">"price"</span>] <span class="op">=</span> price_limit</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">13</span>))</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout(pad<span class="op">=</span><span class="fl">5.0</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].title.set_text(<span class="st">"BH price heatmap"</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_xlabel(<span class="st">"Longitude"</span>)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>].set_ylabel(<span class="st">"Latitude"</span>)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    scatter <span class="op">=</span> ax[<span class="dv">0</span>].scatter(</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        bh_heatmap[<span class="st">"lon"</span>],</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        bh_heatmap[<span class="st">"lat"</span>],</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>        s<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>        c<span class="op">=</span>bh_heatmap[<span class="st">"price_over_m2"</span>],</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>        cmap<span class="op">=</span><span class="st">"plasma_r"</span>,</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        alpha<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">**</span>(</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>            {<span class="st">"norm"</span>: colors.Normalize(vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span>price_limit)}</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> price_limit <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span> {}</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    fig.colorbar(scatter)</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    plt.setp(ax[<span class="dv">0</span>].get_xticklabels(), rotation<span class="op">=</span><span class="dv">30</span>, horizontalalignment<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].title.set_text(<span class="st">"Santa Cruz price/m2 evolution"</span>)</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].set_xlabel(<span class="st">"Date"</span>)</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Price/m2"</span>)</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].plot(</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>        date_list,</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>        santa_cruz[santa_cruz.rooms <span class="op">==</span> <span class="dv">1</span>].price_over_m2.rolling(<span class="dv">30</span>).mean(),</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"1 room"</span>,</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].plot(</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>        date_list,</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>        santa_cruz[santa_cruz.rooms <span class="op">==</span> <span class="dv">2</span>].price_over_m2.rolling(<span class="dv">30</span>).mean(),</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"2 rooms"</span>,</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].plot(</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>        date_list,</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>        santa_cruz[santa_cruz.rooms <span class="op">==</span> <span class="dv">3</span>].price_over_m2.rolling(<span class="dv">30</span>).mean(),</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"3 rooms"</span>,</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>].legend()</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>    plt.setp(ax[<span class="dv">1</span>].get_xticklabels(), rotation<span class="op">=</span><span class="dv">30</span>, horizontalalignment<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].title.set_text(<span class="st">"Sion price/m2 evolution"</span>)</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].set_xlabel(<span class="st">"Date"</span>)</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].set_ylabel(<span class="st">"Price/m2"</span>)</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].plot(</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>        date_list,</span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>        sion[sion.rooms <span class="op">==</span> <span class="dv">1</span>].price_over_m2.rolling(<span class="dv">30</span>).mean(),</span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"1 room"</span>,</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].plot(</span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>        date_list,</span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>        sion[sion.rooms <span class="op">==</span> <span class="dv">2</span>].price_over_m2.rolling(<span class="dv">30</span>).mean(),</span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"2 rooms"</span>,</span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].plot(</span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>        date_list,</span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a>        sion[sion.rooms <span class="op">==</span> <span class="dv">3</span>].price_over_m2.rolling(<span class="dv">30</span>).mean(),</span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="st">"3 rooms"</span>,</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">2</span>].legend()</span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a>    plt.setp(ax[<span class="dv">2</span>].get_xticklabels(), rotation<span class="op">=</span><span class="dv">30</span>, horizontalalignment<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a>    fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="random-forest" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest">Random Forest</h2>
+<p>We are going to give a try to the Random Forest model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestRegressor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>rf <span class="op">=</span> RandomForestRegressor(n_estimators<span class="op">=</span><span class="dv">100</span>, max_depth<span class="op">=</span><span class="dv">15</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>rf.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style>#sk-container-id-2 {color: black;}#sk-container-id-2 pre{padding: 0;}#sk-container-id-2 div.sk-toggleable {background-color: white;}#sk-container-id-2 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-2 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-2 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-2 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-2 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-2 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-2 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-2 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-2 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-2 div.sk-item {position: relative;z-index: 1;}#sk-container-id-2 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-2 div.sk-item::before, #sk-container-id-2 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-2 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-2 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-2 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-2 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-2 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-2 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-2 div.sk-label-container {text-align: center;}#sk-container-id-2 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-2 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-2" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>RandomForestRegressor(max_depth=15, random_state=0)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" checked=""><label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow">RandomForestRegressor</label><div class="sk-toggleable__content"><pre>RandomForestRegressor(max_depth=15, random_state=0)</pre></div></div></div></div></div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rf.score(X_valid, y_valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>0.7391105641168709</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>sanity_checks(rf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_212015/1983228620.py:73: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-20-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Even with the high score, the model behavior is absolutely bad.</p>
+<p><strong>BH price heatmap</strong>: The model struggled to learn information from coordinates and built rectangular patterns. To get a more precise rectangular segmentation we need to increase <code>max_depth</code> and <code>n_estimators</code> to allow the model to store more information about the coordinates.</p>
+<p><strong>Price evolution</strong>: In both plots, the model cannot see the price difference between 1, 2, and 3 rooms. In real life every location got more expensive from 2013 to 2016 but for the model, the price doesn’t go up.</p>
+<p>I believe it happened because of three reasons:</p>
+<ol type="1">
+<li>Lack of generalization capabilities in the RF model;</li>
+<li>Lack of data;</li>
+<li>RF can learn a limited amount of information given <code>max_depth</code> and <code>n_estimators</code>. To increase it is necessary to raise <code>max_depth</code> and <code>n_estimators</code>. Unfortunately, it will increase the model size (which currently is 127 MB), increase time to train, increase time to inference, increase RAM usage, and can overfit the model.</li>
+</ol>
+<p>Going beyond this point is not worth it. It makes RF not suitable for geospatial data with only coordinates.</p>
+</section>
+<section id="knn" class="level2">
+<h2 class="anchored" data-anchor-id="knn">KNN</h2>
+<p>We are going to give it a try to KNN.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsRegressor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>knn <span class="op">=</span> KNeighborsRegressor(n_neighbors<span class="op">=</span><span class="dv">15</span>, weights<span class="op">=</span><span class="st">"distance"</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>knn.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style>#sk-container-id-3 {color: black;}#sk-container-id-3 pre{padding: 0;}#sk-container-id-3 div.sk-toggleable {background-color: white;}#sk-container-id-3 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-3 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-3 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-3 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-3 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-3 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-3 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-3 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-3 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-3 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-3 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-3 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-3 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-3 div.sk-item {position: relative;z-index: 1;}#sk-container-id-3 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-3 div.sk-item::before, #sk-container-id-3 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-3 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-3 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-3 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-3 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-3 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-3 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-3 div.sk-label-container {text-align: center;}#sk-container-id-3 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-3 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-3" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KNeighborsRegressor(n_neighbors=15, weights='distance')</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" checked=""><label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow">KNeighborsRegressor</label><div class="sk-toggleable__content"><pre>KNeighborsRegressor(n_neighbors=15, weights='distance')</pre></div></div></div></div></div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>knn.score(X_valid, y_valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>0.6321752472080835</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sanity_checks(knn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_212015/1983228620.py:73: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-24-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Low score and bad model behavior.</p>
+<p><strong>BH price heatmap</strong>: The model struggled to learn information from coordinates (maybe because of other features that are not geospatial coordinates) and built a random surface. Even lowering our expectations and allowing for a “low-resolution heatmap” the price should be higher at the bottom of the figure, not lower.</p>
+<p><strong>Price evolution</strong>: In both plots, the model cannot see too much price difference between 1, 2 and 3 rooms. The price is the same for a well-known expensive location and a well-known cheap location. In real life, every location got more expensive from 2013 to 2016 but for the model, the price doesn’t go up. Instead of it, the price goes up and down “randomly”.</p>
+<p>This model can “learn” a lot of information but cannot learn the patterns from them.</p>
+</section>
+<section id="neural-networks" class="level2">
+<h2 class="anchored" data-anchor-id="neural-networks">Neural Networks</h2>
+<p>We are going to give it a try to neural networks.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neural_network <span class="im">import</span> MLPRegressor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>nn <span class="op">=</span> MLPRegressor(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    hidden_layer_sizes<span class="op">=</span>(<span class="dv">128</span>, <span class="dv">64</span>, <span class="dv">32</span>, <span class="dv">16</span>),</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    max_iter<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    early_stopping<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>nn.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Iteration 1, loss = 0.01155141
+Validation score: 0.221862
+Iteration 2, loss = 0.01088603
+Validation score: 0.212346
+Iteration 3, loss = 0.01077097
+Validation score: 0.243658
+Iteration 4, loss = 0.01061189
+Validation score: 0.262032
+Iteration 5, loss = 0.01034798
+Validation score: 0.275889
+Iteration 6, loss = 0.00965983
+Validation score: 0.314949
+Iteration 7, loss = 0.00913479
+Validation score: 0.402566
+Iteration 8, loss = 0.00878743
+Validation score: 0.365734
+Iteration 9, loss = 0.00846887
+Validation score: 0.323008
+Iteration 10, loss = 0.00835023
+Validation score: 0.457188
+Iteration 11, loss = 0.00822268
+Validation score: 0.450064
+Iteration 12, loss = 0.00813812
+Validation score: 0.429624
+Iteration 13, loss = 0.00803822
+Validation score: 0.208194
+Iteration 14, loss = 0.00809019
+Validation score: 0.464554
+Iteration 15, loss = 0.00811037
+Validation score: 0.381254
+Iteration 16, loss = 0.00806553
+Validation score: 0.448898
+Iteration 17, loss = 0.00805290
+Validation score: 0.461965
+Iteration 18, loss = 0.00788982
+Validation score: 0.475674
+Iteration 19, loss = 0.00793062
+Validation score: 0.449990
+Iteration 20, loss = 0.00778544
+Validation score: 0.486660
+Iteration 21, loss = 0.00779338
+Validation score: 0.477434
+Iteration 22, loss = 0.00777171
+Validation score: 0.462441
+Iteration 23, loss = 0.00770208
+Validation score: 0.382629
+Iteration 24, loss = 0.00781632
+Validation score: 0.490394
+Iteration 25, loss = 0.00778360
+Validation score: 0.444528
+Iteration 26, loss = 0.00771133
+Validation score: 0.465044
+Iteration 27, loss = 0.00769576
+Validation score: 0.471903
+Iteration 28, loss = 0.00773866
+Validation score: 0.449037
+Iteration 29, loss = 0.00770919
+Validation score: 0.494166
+Iteration 30, loss = 0.00771471
+Validation score: 0.465014
+Iteration 31, loss = 0.00767140
+Validation score: 0.467776
+Iteration 32, loss = 0.00757540
+Validation score: 0.487759
+Iteration 33, loss = 0.00759566
+Validation score: 0.490186
+Iteration 34, loss = 0.00758822
+Validation score: 0.410153
+Iteration 35, loss = 0.00759636
+Validation score: 0.501076
+Iteration 36, loss = 0.00757625
+Validation score: 0.497474
+Iteration 37, loss = 0.00761486
+Validation score: 0.440051
+Iteration 38, loss = 0.00756604
+Validation score: 0.456769
+Iteration 39, loss = 0.00751279
+Validation score: 0.465779
+Iteration 40, loss = 0.00759903
+Validation score: 0.450521
+Iteration 41, loss = 0.00755100
+Validation score: 0.498528
+Iteration 42, loss = 0.00751146
+Validation score: 0.503334
+Iteration 43, loss = 0.00753971
+Validation score: 0.489244
+Iteration 44, loss = 0.00751878
+Validation score: 0.481944
+Iteration 45, loss = 0.00752564
+Validation score: 0.484779
+Iteration 46, loss = 0.00749715
+Validation score: 0.474444
+Iteration 47, loss = 0.00754483
+Validation score: 0.362897
+Iteration 48, loss = 0.00749922
+Validation score: 0.379450
+Iteration 49, loss = 0.00744500
+Validation score: 0.481598
+Iteration 50, loss = 0.00744425
+Validation score: 0.490585
+Iteration 51, loss = 0.00747556
+Validation score: 0.492221
+Iteration 52, loss = 0.00743051
+Validation score: 0.503634
+Iteration 53, loss = 0.00746039
+Validation score: 0.497111
+Iteration 54, loss = 0.00743607
+Validation score: 0.506194
+Iteration 55, loss = 0.00738568
+Validation score: 0.474368
+Iteration 56, loss = 0.00740268
+Validation score: 0.493748
+Iteration 57, loss = 0.00750992
+Validation score: 0.449288
+Iteration 58, loss = 0.00735858
+Validation score: 0.491898
+Iteration 59, loss = 0.00737670
+Validation score: 0.476540
+Iteration 60, loss = 0.00734037
+Validation score: 0.432427
+Iteration 61, loss = 0.00732651
+Validation score: 0.520696
+Iteration 62, loss = 0.00734420
+Validation score: 0.515336
+Iteration 63, loss = 0.00734858
+Validation score: 0.470467
+Iteration 64, loss = 0.00734688
+Validation score: 0.482842
+Iteration 65, loss = 0.00731572
+Validation score: 0.504744
+Iteration 66, loss = 0.00740405
+Validation score: 0.491073
+Iteration 67, loss = 0.00736960
+Validation score: 0.515602
+Iteration 68, loss = 0.00734922
+Validation score: 0.477252
+Iteration 69, loss = 0.00731116
+Validation score: 0.499762
+Iteration 70, loss = 0.00727751
+Validation score: 0.411075
+Iteration 71, loss = 0.00731228
+Validation score: 0.521941
+Iteration 72, loss = 0.00735339
+Validation score: 0.509044
+Iteration 73, loss = 0.00726377
+Validation score: 0.507393
+Iteration 74, loss = 0.00731905
+Validation score: 0.444809
+Iteration 75, loss = 0.00723431
+Validation score: 0.521621
+Iteration 76, loss = 0.00729300
+Validation score: 0.516061
+Iteration 77, loss = 0.00727376
+Validation score: 0.519239
+Iteration 78, loss = 0.00725786
+Validation score: 0.508508
+Iteration 79, loss = 0.00729266
+Validation score: 0.510332
+Iteration 80, loss = 0.00726435
+Validation score: 0.496192
+Iteration 81, loss = 0.00718731
+Validation score: 0.511710
+Iteration 82, loss = 0.00723880
+Validation score: 0.375131
+Validation score did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<style>#sk-container-id-4 {color: black;}#sk-container-id-4 pre{padding: 0;}#sk-container-id-4 div.sk-toggleable {background-color: white;}#sk-container-id-4 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-4 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-4 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-4 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-4 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-4 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-4 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-4 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-4 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-4 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-4 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-4 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-4 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-4 div.sk-item {position: relative;z-index: 1;}#sk-container-id-4 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-4 div.sk-item::before, #sk-container-id-4 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-4 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-4 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-4 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-4 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-4 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-4 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-4 div.sk-label-container {text-align: center;}#sk-container-id-4 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-4 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-4" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>MLPRegressor(batch_size=32, early_stopping=True,
+             hidden_layer_sizes=(128, 64, 32, 16), random_state=0,
+             verbose=True)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br>On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-4" type="checkbox" checked=""><label for="sk-estimator-id-4" class="sk-toggleable__label sk-toggleable__label-arrow">MLPRegressor</label><div class="sk-toggleable__content"><pre>MLPRegressor(batch_size=32, early_stopping=True,
+             hidden_layer_sizes=(128, 64, 32, 16), random_state=0,
+             verbose=True)</pre></div></div></div></div></div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>nn.score(X_valid, y_valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>0.5273335291341406</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>sanity_checks(nn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_341749/1983228620.py:73: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-28-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Low score and bad model behavior.</p>
+<p><strong>BH price heatmap</strong>: The model struggled to learn information from coordinates and built a “random” surface. Even lowering our expectations and allowing a “low-resolution heatmap” the price should be higher on the right of the figure, not left.</p>
+<p><strong>Price evolution</strong>: The model ordered rooms almost OK but there’s not much price difference between 1, 2 and 3 rooms. The price is the same for a well-known expensive location and a well-known cheap location. In real life, every location got more expensive from 2013 to 2016 but for the model, the price goes down.</p>
+<p>To allow the neural network to learn the patterns from the coordinates we will need a lot more parameters and running time.</p>
+<p>PS: I attempted to run a neural network with the architecture 6-2000-2000-2000-1 on my notebook’s graphics card, but I did not see any improvement in the score even with more than 1 hour of train time.</p>
+</section>
+<section id="spatial-boosted-random-forest" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-boosted-random-forest">Spatial Boosted Random Forest</h2>
+<p>Here’s where things got interesting. Since the “KKN Spatial Booster” increases model spatial awareness we can get a lot better behaviour.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> knn_spatial_boost.core <span class="im">import</span> KNNSpatialBooster</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>boosted_rf <span class="op">=</span> KNNSpatialBooster(</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    n_neighbors<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    temperature<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    n_loops<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    spatial_features<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>],</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    remove_target_spatial_cols<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    remove_neighbor_spatial_cols<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    estimator<span class="op">=</span>RandomForestRegressor(n_estimators<span class="op">=</span><span class="dv">100</span>, max_depth<span class="op">=</span><span class="dv">15</span>, random_state<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>boosted_rf.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running loop #0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>boosted_rf.score(X_valid, y_valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>0.6462122118094535</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>sanity_checks(boosted_rf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_341749/1983228620.py:73: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-32-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Better model behavior but lower score.</p>
+<p><strong>BH price heatmap</strong>: Now we have a picture that looks like a city and not a “random” surface. The more expensive region of the city is darker, which is a great sign.</p>
+<p><strong>Price evolution</strong>: In both plots, the model cannot see the price difference between 1, 2, and 3 rooms. In real life every location got more expensive from 2013 to 2016 but for the model, the price doesn’t go up. Instead of it, the price goes up and down “randomly”.</p>
+<p>Even with the spatial boost, looks like RF is not the right algorithm to deal with this problem because of its lack of generalization capabilities. It’s a calculation problem and all NNs do are calculations. That’s why we are going to try it with the spatial booster.</p>
+</section>
+<section id="spatial-boosted-neural-network" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-boosted-neural-network">Spatial Boosted Neural Network</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neural_network <span class="im">import</span> MLPRegressor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>boosted_nn <span class="op">=</span> KNNSpatialBooster(</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    n_neighbors<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    temperature<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    n_loops<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    spatial_features<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>],</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    remove_target_spatial_cols<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    remove_neighbor_spatial_cols<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    estimator<span class="op">=</span>MLPRegressor(</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>        hidden_layer_sizes<span class="op">=</span>(<span class="dv">64</span>, <span class="dv">32</span>, <span class="dv">16</span>, <span class="dv">8</span>),</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>        warm_start<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>        early_stopping<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>        tol<span class="op">=</span><span class="fl">1e-10</span>,</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>        n_iter_no_change<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>        verbose<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>        max_iter<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>        batch_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>        random_state<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>boosted_nn.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running loop #0
+Iteration 1, loss = 0.01076201
+Validation score: 0.639482
+Iteration 2, loss = 0.00505485
+Validation score: 0.646830
+Iteration 3, loss = 0.00502750
+Validation score: 0.606791
+Iteration 4, loss = 0.00499496
+Validation score: 0.594461
+Iteration 5, loss = 0.00496672
+Validation score: 0.654910
+Iteration 6, loss = 0.00493094
+Validation score: 0.651485
+Iteration 7, loss = 0.00491670
+Validation score: 0.631484
+Iteration 8, loss = 0.00488778
+Validation score: 0.656580
+Iteration 9, loss = 0.00488642
+Validation score: 0.640114
+Iteration 10, loss = 0.00487413
+Validation score: 0.654056
+Running loop #1
+Iteration 1, loss = 0.00492030
+Validation score: 0.657268
+Iteration 2, loss = 0.00489820
+Validation score: 0.659917
+Iteration 3, loss = 0.00490151
+Validation score: 0.657331
+Iteration 4, loss = 0.00489341
+Validation score: 0.662173
+Iteration 5, loss = 0.00487561
+Validation score: 0.660516
+Iteration 6, loss = 0.00487458
+Validation score: 0.653273
+Iteration 7, loss = 0.00486312
+Validation score: 0.663242
+Iteration 8, loss = 0.00486511
+Validation score: 0.656660
+Iteration 9, loss = 0.00485934
+Validation score: 0.661999
+Iteration 10, loss = 0.00484734
+Validation score: 0.650012
+Running loop #2
+Iteration 1, loss = 0.00484281
+Validation score: 0.658492
+Iteration 2, loss = 0.00483870
+Validation score: 0.660877
+Iteration 3, loss = 0.00483310
+Validation score: 0.661852
+Iteration 4, loss = 0.00482470
+Validation score: 0.661438
+Iteration 5, loss = 0.00481553
+Validation score: 0.651800
+Iteration 6, loss = 0.00481803
+Validation score: 0.646303
+Iteration 7, loss = 0.00480763
+Validation score: 0.662768
+Iteration 8, loss = 0.00480969
+Validation score: 0.663732
+Iteration 9, loss = 0.00480441
+Validation score: 0.660551
+Iteration 10, loss = 0.00479137
+Validation score: 0.660748
+Running loop #3
+Iteration 1, loss = 0.00482647
+Validation score: 0.657868
+Iteration 2, loss = 0.00483086
+Validation score: 0.658173
+Iteration 3, loss = 0.00482533
+Validation score: 0.661644
+Iteration 4, loss = 0.00481965
+Validation score: 0.660866
+Iteration 5, loss = 0.00481187
+Validation score: 0.654417
+Iteration 6, loss = 0.00481857
+Validation score: 0.648055
+Iteration 7, loss = 0.00481070
+Validation score: 0.659433
+Iteration 8, loss = 0.00481106
+Validation score: 0.660187
+Iteration 9, loss = 0.00480457
+Validation score: 0.660062
+Iteration 10, loss = 0.00479852
+Validation score: 0.657204
+Running loop #4
+Iteration 1, loss = 0.00477730
+Validation score: 0.647587
+Iteration 2, loss = 0.00477892
+Validation score: 0.657816
+Iteration 3, loss = 0.00477693
+Validation score: 0.653692
+Iteration 4, loss = 0.00477174
+Validation score: 0.646146
+Iteration 5, loss = 0.00476712
+Validation score: 0.646889
+Iteration 6, loss = 0.00477756
+Validation score: 0.657485
+Iteration 7, loss = 0.00476419
+Validation score: 0.657585
+Iteration 8, loss = 0.00476931
+Validation score: 0.659595
+Iteration 9, loss = 0.00476752
+Validation score: 0.658798
+Validation score did not improve more than tol=0.000000 for 20 consecutive epochs. Stopping.
+Running loop #5
+Iteration 1, loss = 0.00478566
+Validation score: 0.654872
+Validation score did not improve more than tol=0.000000 for 20 consecutive epochs. Stopping.
+Running loop #6
+Iteration 1, loss = 0.00476722
+Validation score: 0.659148
+Validation score did not improve more than tol=0.000000 for 20 consecutive epochs. Stopping.
+Running loop #7
+Iteration 1, loss = 0.00477244
+Validation score: 0.645208
+Validation score did not improve more than tol=0.000000 for 20 consecutive epochs. Stopping.
+Running loop #8
+Iteration 1, loss = 0.00477162
+Validation score: 0.656917
+Validation score did not improve more than tol=0.000000 for 20 consecutive epochs. Stopping.
+Running loop #9
+Iteration 1, loss = 0.00475579
+Validation score: 0.649134
+Validation score did not improve more than tol=0.000000 for 20 consecutive epochs. Stopping.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/cleto/repos/knn-spatial-boost/.venv/lib/python3.10/site-packages/sklearn/neural_network/_multilayer_perceptron.py:691: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (10) reached and the optimization hasn't converged yet.
+  warnings.warn(
+/home/cleto/repos/knn-spatial-boost/.venv/lib/python3.10/site-packages/sklearn/neural_network/_multilayer_perceptron.py:691: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (10) reached and the optimization hasn't converged yet.
+  warnings.warn(
+/home/cleto/repos/knn-spatial-boost/.venv/lib/python3.10/site-packages/sklearn/neural_network/_multilayer_perceptron.py:691: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (10) reached and the optimization hasn't converged yet.
+  warnings.warn(
+/home/cleto/repos/knn-spatial-boost/.venv/lib/python3.10/site-packages/sklearn/neural_network/_multilayer_perceptron.py:691: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (10) reached and the optimization hasn't converged yet.
+  warnings.warn(</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>boosted_nn.score(X_valid, y_valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>0.6188857129459122</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>sanity_checks(boosted_nn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_341749/1983228620.py:73: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-36-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Best model behavior but low score.</p>
+<p><strong>BH price heatmap</strong>: Now we have a picture that looks like a city and not a “random” surface. The more expensive region of the city is darker, which is a great sign.</p>
+<p><strong>Price evolution</strong>: Curves correct order (3 rooms are more expensive than 2 rooms). Correct behavior over time since the price goes up.</p>
+<p>Everything looks good but the scores in both training and validation datasets are poor. Note that we decided to use only the first neighbor and maybe there’s not enough context to the model to calculate a final price. To increase the number of neighbors we need to increase the NN size because it cannot handle this amount of information.</p>
+</section>
+<section id="spatial-boosted-neural-network-bigger-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-boosted-neural-network-bigger-architecture">Spatial Boosted Neural Network (Bigger Architecture)</h2>
+<p>When trying to increase the number of neighbors and the number of neurons in each layer my CPU started struggling. The SciKit Learn implementation of NN is CPU-only so I tried Tensorflow and Keras to use my GPU.</p>
+<p>I tested a lot of neighbor quantities with the 2000-2000-2000-1 architecture (and built a table with training score, validation score, etc, but I lost it) and figured out that 4 is the ideal number of neighbors for that amount of neurons and layers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>keras_nn <span class="op">=</span> tf.keras.models.Sequential()</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>keras_nn.add(tf.keras.layers.Dense(<span class="dv">2000</span>, activation<span class="op">=</span><span class="st">"relu"</span>, input_shape<span class="op">=</span>(<span class="dv">28</span>,)))</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>keras_nn.add(tf.keras.layers.Dropout(rate<span class="op">=</span><span class="fl">0.01</span>))</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>keras_nn.add(tf.keras.layers.Dense(<span class="dv">2000</span>, activation<span class="op">=</span><span class="st">"relu"</span>))</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>keras_nn.add(tf.keras.layers.Dense(<span class="dv">2000</span>, activation<span class="op">=</span><span class="st">"relu"</span>))</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>keras_nn.add(tf.keras.layers.Dense(<span class="dv">1</span>, activation<span class="op">=</span><span class="st">"linear"</span>))</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile the model</span></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>keras_nn.<span class="bu">compile</span>(</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>    loss<span class="op">=</span><span class="st">"mean_squared_error"</span>,</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>    optimizer<span class="op">=</span><span class="st">"adam"</span>,</span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[tf.keras.metrics.R2Score()],</span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>boosted_keras_nn <span class="op">=</span> KNNSpatialBooster(</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>    n_neighbors<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>    temperature<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>    n_loops<span class="op">=</span><span class="dv">33</span>,</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>    spatial_features<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>],</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>    remove_target_spatial_cols<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>    remove_neighbor_spatial_cols<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>    estimator<span class="op">=</span>keras_nn,</span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>boosted_keras_nn.fit(X_train, y_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Running loop #0
+3357/3357 [==============================] - 68s 19ms/step - loss: 0.0115 - r2_score: 0.5864
+Running loop #1
+3357/3357 [==============================] - 63s 19ms/step - loss: 0.0083 - r2_score: 0.7024
+Running loop #2
+3357/3357 [==============================] - 63s 19ms/step - loss: 0.0082 - r2_score: 0.7041
+Running loop #3
+3357/3357 [==============================] - 64s 19ms/step - loss: 0.0082 - r2_score: 0.7067
+Running loop #4
+3357/3357 [==============================] - 64s 19ms/step - loss: 0.0081 - r2_score: 0.7097
+Running loop #5
+3357/3357 [==============================] - 64s 19ms/step - loss: 0.0081 - r2_score: 0.7101
+Running loop #6
+3357/3357 [==============================] - 64s 19ms/step - loss: 0.0080 - r2_score: 0.7121
+Running loop #7
+3357/3357 [==============================] - 65s 19ms/step - loss: 0.0080 - r2_score: 0.7118
+Running loop #8
+3357/3357 [==============================] - 65s 19ms/step - loss: 0.0080 - r2_score: 0.7134
+Running loop #9
+3357/3357 [==============================] - 64s 19ms/step - loss: 0.0080 - r2_score: 0.7133
+Running loop #10
+3357/3357 [==============================] - 65s 19ms/step - loss: 0.0080 - r2_score: 0.7131
+Running loop #11
+3357/3357 [==============================] - 65s 19ms/step - loss: 0.0080 - r2_score: 0.7137
+Running loop #12
+3357/3357 [==============================] - 65s 19ms/step - loss: 0.0079 - r2_score: 0.7153
+Running loop #13
+3357/3357 [==============================] - 64s 19ms/step - loss: 0.0079 - r2_score: 0.7149
+Running loop #14
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7156
+Running loop #15
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7162
+Running loop #16
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7176
+Running loop #17
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7166
+Running loop #18
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7164
+Running loop #19
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7172
+Running loop #20
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7183
+Running loop #21
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7192
+Running loop #22
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7186
+Running loop #23
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7186
+Running loop #24
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7183
+Running loop #25
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7176
+Running loop #26
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7180
+Running loop #27
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7187
+Running loop #28
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0079 - r2_score: 0.7175
+Running loop #29
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7184
+Running loop #30
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7182
+Running loop #31
+3357/3357 [==============================] - 61s 18ms/step - loss: 0.0078 - r2_score: 0.7195
+Running loop #32
+3357/3357 [==============================] - 60s 18ms/step - loss: 0.0078 - r2_score: 0.7203</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>boosted_keras_nn.score(X_valid, y_valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1435/1435 [==============================] - 8s 5ms/step - loss: 0.0078 - r2_score: 0.7193</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>[0.007787229958921671, 0.7192660570144653]</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>sanity_checks(boosted_keras_nn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>157/157 [==============================] - 1s 3ms/step
+103/103 [==============================] - 0s 3ms/step
+103/103 [==============================] - 0s 4ms/step</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_341749/1983228620.py:73: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.show()</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="research_files/figure-html/cell-40-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<table class="table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 6%">
+<col style="width: 2%">
+<col style="width: 17%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Time to train</th>
+<th>Score</th>
+<th>BH check</th>
+<th>Santa Cruz and Sion check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Random Forest</td>
+<td>35.1s</td>
+<td>0.739</td>
+<td>Vertical and horizontal patterns</td>
+<td>Colapsing curves going up and down</td>
+</tr>
+<tr class="even">
+<td>KNN</td>
+<td>0.3s</td>
+<td>0.632</td>
+<td>Random smooth surface</td>
+<td>Curves going up and down</td>
+</tr>
+<tr class="odd">
+<td>Neural Network</td>
+<td>7m42.4s</td>
+<td>0.521</td>
+<td>Random smooth surface</td>
+<td>Correct curve order but they go up and down and the same price for different places</td>
+</tr>
+<tr class="even">
+<td>Spatial Boosted Random Forest</td>
+<td>44.3s</td>
+<td>0.647</td>
+<td>Seems natural</td>
+<td>Colapsing random curves</td>
+</tr>
+<tr class="odd">
+<td>Spatial Boosted Neural Network</td>
+<td>7m16s</td>
+<td>0.619</td>
+<td>Seems natural</td>
+<td>Correct order and arguable price evolution and price difference between places</td>
+</tr>
+<tr class="even">
+<td>Spatial Boosted Neural Network (Bigger Architecture)</td>
+<td>35m56.1s</td>
+<td>0.719</td>
+<td>Seems natural</td>
+<td>Almost correct order and arguable price evolution and price difference between places</td>
+</tr>
+</tbody>
+</table>
+<p>RF had the best score but with a little bit more investigation we see a bad geospatial generalization and no price difference when adding more rooms. It seems to overfit but due to a lack of data and not to a model inability. We need more spatial features like distance to the nearest city center, hospital, school, public transportation, etc.</p>
+<p>KNN had the best time to train but struggled with all other evaluation criteria.</p>
+<p>NN seems to underfit. It’s expected given the time to train and the complexity of understanding price fluctuation given only coordinates. It’s possible to fit a NN with this data but only with a lot more time to train and a bigger architecture.</p>
+<p>Instead of adding spatial features like distance to the nearest city center, I decided to use KNN to increase model spatial awareness by adding neighbors as features. In addition, I implemented neighbor randomness to improve model generalization.</p>
+<p>Spatial Boosted RF had better geospatial generalization but again seems to overfit due to lack of data.</p>
+<p>As NNs have greater generalization capacity, in the end, Spatial Boosted NN was the model that best managed to learn the patterns even with little data. It had the best qualitative performance even scoring worse than other models. The bigger version of it managed to score closer to the RF (0.719).</p>
+</section>
+<section id="improvements-ideas" class="level2">
+<h2 class="anchored" data-anchor-id="improvements-ideas">Improvements &amp; Ideas</h2>
+<p>I believe we can encode spatial data in better ways. As we can see <a href="https://www.uber.com/en-DE/blog/deepeta-how-uber-predicts-arrival-times/">here</a>, we can use coordinates as discrete cells, calculate embeddings for them, and use them in a transformer. Maybe in the future, I will try to reproduce this technique for this problem.</p>
+<section id="about-this-research" class="level3">
+<h3 class="anchored" data-anchor-id="about-this-research">About this research</h3>
+<ul>
+<li>Generate a GIF to show price evolution through time.</li>
+<li>Add an online demo for portfolio purposes.</li>
+<li><code>description</code> column can be used with NLP.</li>
+</ul>
+</section>
+<section id="about-the-method" class="level3">
+<h3 class="anchored" data-anchor-id="about-the-method">About the method</h3>
+<ul>
+<li>Identify the way this method affects the base model (needs more tuning?).</li>
+<li>Try another dataset to figure out which kind of problem suits better with the technique.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
