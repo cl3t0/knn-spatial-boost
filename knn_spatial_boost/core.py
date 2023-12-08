@@ -222,7 +222,9 @@ class KNNSpatialBooster:
             remove_target_spatial_cols=self.remove_target_spatial_cols,
         )
 
-        return self.estimator.score(
+        score_func_name = "score" if hasattr(self.estimator, "score") else "evaluate"
+
+        return getattr(self.estimator, score_func_name)(
             boosted_X, Y.ravel() if self.estimator_output_1d_array else Y
         )
     
